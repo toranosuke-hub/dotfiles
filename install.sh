@@ -1,20 +1,20 @@
 #!/bin/bash
 
-# エラーが起きたらスクリプトを終了する
+# エラーが起きたら停止
 set -e
 
-# dotfilesフォルダのパス
-DOT_DIRECTORY="$HOME/dotfiles"
+# 【重要】このスクリプトが存在するディレクトリに強制移動する
+cd "$(dirname "$0")"
+DOT_DIRECTORY=$(pwd)
 
 echo "🔗 シンボリックリンクの自動作成を開始します..."
 
-# フォルダ内の「.」から始まるファイル名をすべてループ処理する
+# dotfilesフォルダ内の隠しファイルだけを安全にループ処理
 for f in .??*; do
-    # 無視するファイル（Gitの管理ファイルなど）を除外
     [ "$f" = ".git" ] && continue
     [ "$f" = ".gitignore" ] && continue
-
-    # ln -snfv コマンドで、古いリンクを安全に上書きしながら作成
+    
+    # リンクを張る
     ln -snfv "$DOT_DIRECTORY/$f" "$HOME/$f"
 done
 
