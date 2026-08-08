@@ -537,3 +537,12 @@ bind - split-window -v -c '#{pane_current_path}'
 # Oh my tmux! uses "_" for left/right split by default.
 # Keep only "|" to make the bindings simpler.
 unbind _
+
+# Git TUI popup.
+unbind g
+bind g display-popup \
+  -E \
+  -w 90% \
+  -h 90% \
+  -d '#{pane_current_path}' \
+  'lazygit'

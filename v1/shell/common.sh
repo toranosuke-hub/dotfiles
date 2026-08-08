@@ -35,3 +35,8 @@ if ! command -v bat >/dev/null 2>&1 &&
    command -v batcat >/dev/null 2>&1; then
     alias bat='batcat'
 fi
+
+# Git TUI.
+if command -v lazygit >/dev/null 2>&1; then
+    alias lg='lazygit'
+fi
