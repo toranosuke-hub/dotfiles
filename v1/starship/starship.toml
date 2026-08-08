@@ -1,0 +1,48 @@
+"$schema" = "https://starship.rs/config-schema.json"
+
+add_newline = false
+palette = "nord"
+
+# Old Kali-style two-line prompt:
+# ┌──(user㉿host)-[directory]
+# └─$
+format = "$username$hostname$directory$line_break$character"
+
+[username]
+show_always = true
+style_user = "bold nord8"
+style_root = "bold nord11"
+format = "[\u250c\u2500\u2500\\(](nord3)[$user]($style)"
+
+[hostname]
+ssh_only = false
+style = "bold nord9"
+format = "[\u327f](nord7)[$hostname]($style)[\\)-](nord3)"
+
+[directory]
+style = "bold nord4"
+format = "[\\[](nord3)[$path]($style)[\\]](nord3)"
+truncation_length = 4
+truncate_to_repo = false
+
+[character]
+success_symbol = "[\u2514\u2500\\$](bold nord8) "
+error_symbol = "[\u2514\u2500\\$](bold nord11) "
+
+[palettes.nord]
+nord0 = "#2E3440"
+nord1 = "#3B4252"
+nord2 = "#434C5E"
+nord3 = "#4C566A"
+nord4 = "#D8DEE9"
+nord5 = "#E5E9F0"
+nord6 = "#ECEFF4"
+nord7 = "#8FBCBB"
+nord8 = "#88C0D0"
+nord9 = "#81A1C1"
+nord10 = "#5E81AC"
+nord11 = "#BF616A"
+nord12 = "#D08770"
+nord13 = "#EBCB8B"
+nord14 = "#A3BE8C"
+nord15 = "#B48EAD"
