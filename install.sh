@@ -7,17 +7,15 @@ DOT_DIRECTORY="$(
   pwd
 )"
 
-BACKUP_DIRECTORY="$HOME/.dotfiles-backup/$(date +%Y%m%d_%H%M%S)"
-
 DOTFILES=(
+  ".bashrc"
   ".zshrc"
   ".vimrc"
   ".tmux.conf"
+  ".config/nvim/init.vim"
 )
 
 echo "[INFO] dotfiles directory: $DOT_DIRECTORY"
-
-mkdir -p "$BACKUP_DIRECTORY"
 
 for file in "${DOTFILES[@]}"; do
   source_path="$DOT_DIRECTORY/$file"
@@ -28,18 +26,8 @@ for file in "${DOTFILES[@]}"; do
     continue
   fi
 
-  if [[ -L "$target_path" ]] &&
-     [[ "$(readlink -f "$target_path")" = "$(readlink -f "$source_path")" ]]; then
-    echo "[OK] Already linked: $target_path"
-    continue
-  fi
-
-  if [[ -e "$target_path" || -L "$target_path" ]]; then
-    echo "[BACKUP] $target_path"
-    mv "$target_path" "$BACKUP_DIRECTORY/$file"
-  fi
-
-  ln -s "$source_path" "$target_path"
+  mkdir -p "$(dirname -- "$target_path")"
+  ln -sfn "$source_path" "$target_path"
   echo "[LINK] $target_path -> $source_path"
 done
 

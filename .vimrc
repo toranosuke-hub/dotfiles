@@ -29,6 +29,7 @@ Plug 'luochen1990/rainbow'               " 階層ごとにカッコを色分け
 Plug 'liuchengxu/vim-which-key'          " ショートカットのナビゲーション表示
 Plug 'psliwka/vim-smoothie'              " スクロールをなめらかにする
 Plug 'simeji/winresizer'                 " ウィンドウサイズを直感的に変更(Ctrl+e)
+Plug 'preservim/nerdtree'
 
 " --- Markdown特化 ---
 Plug 'preservim/vim-markdown'            " Markdownのシンタックスハイライト・折り畳み
@@ -204,3 +205,20 @@ function! RemoveNumbers()
   NumberHeader
   let g:mnh_header_level_shift = 1
 endfunction
+
+
+" ============================================================
+" NERDTree
+" ============================================================
+
+" Ctrl+n でNERDTreeを開閉
+nnoremap <C-n> :NERDTreeToggle<CR>
+
+" 現在開いているファイルをNERDTree上で探す
+nnoremap <leader>f :NERDTreeFind<CR>
+
+" 隠しファイルを表示
+let NERDTreeShowHidden=1
+
+" NERDTreeの横幅
+let NERDTreeWinSize=35
