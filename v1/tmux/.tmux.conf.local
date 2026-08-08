@@ -83,7 +83,7 @@ tmux_conf_24b_colour=true
 #   - tmux_conf_theme_mouse
 #   - tmux_conf_theme_root
 #   - tmux_conf_theme_synchronized
-tmux_conf_theme=enabled
+tmux_conf_theme=disabled
 
 # default theme
 tmux_conf_theme_colour_1="#2E3440"
@@ -153,8 +153,8 @@ tmux_conf_theme_pane_indicator="$tmux_conf_theme_colour_4"
 tmux_conf_theme_pane_active_indicator="$tmux_conf_theme_colour_4"
 
 # status line style
-tmux_conf_theme_message_fg="$tmux_conf_theme_colour_1"
-tmux_conf_theme_message_bg="$tmux_conf_theme_colour_5"
+tmux_conf_theme_message_fg="#ECEFF4"
+tmux_conf_theme_message_bg="#5E81AC"
 tmux_conf_theme_message_attr="bold"
 
 # status line command style (<prefix> : Escape)
@@ -163,8 +163,8 @@ tmux_conf_theme_message_command_bg="$tmux_conf_theme_colour_1"
 tmux_conf_theme_message_command_attr="bold"
 
 # window modes style
-tmux_conf_theme_mode_fg="$tmux_conf_theme_colour_1"
-tmux_conf_theme_mode_bg="$tmux_conf_theme_colour_5"
+tmux_conf_theme_mode_fg="#ECEFF4"
+tmux_conf_theme_mode_bg="#5E81AC"
 tmux_conf_theme_mode_attr="bold"
 
 # status line style
@@ -546,3 +546,29 @@ bind g display-popup \
   -h 90% \
   -d '#{pane_current_path}' \
   'lazygit'
+
+# -- Unicode-safe OS clipboard ----------------------------------------------
+# Use a portable wrapper instead of calling clip.exe directly.
+# WSL: UTF-8 -> UTF-16LE -> clip.exe
+# Kali/Linux: wl-copy, xclip, or xsel
+bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel 'copy-to-clipboard' #!important
+bind-key -T copy-mode-vi D send-keys -X copy-pipe-end-of-line-and-cancel 'copy-to-clipboard' #!important
+bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel 'copy-to-clipboard' #!important
+bind-key -T copy-mode-vi C-j send-keys -X copy-pipe-and-cancel 'copy-to-clipboard' #!important
+bind-key -T copy-mode-vi MouseDragEnd1Pane send-keys -X copy-pipe-and-cancel 'copy-to-clipboard' #!important
+bind-key -T copy-mode-vi DoubleClick1Pane select-pane \; send-keys -X select-word \; run-shell -d 0.3 \; send-keys -X copy-pipe-and-cancel 'copy-to-clipboard' #!important
+bind-key -T copy-mode-vi TripleClick1Pane select-pane \; send-keys -X select-line \; run-shell -d 0.3 \; send-keys -X copy-pipe-and-cancel 'copy-to-clipboard' #!important
+
+# -- Official Nord tmux ------------------------------------------------------
+# Oh My Tmux! provides behavior and bindings.
+# nordtheme/tmux owns the visual theme.
+set -g @nord_tmux_show_status_content "1"
+set -g @nord_tmux_no_patched_font "0"
+set -g @plugin "nordtheme/tmux"
+
+# Oh My Tmux! normally expands these values for its own status line.
+# Restore stock values after plugins so Nord keeps its official layout.
+set -g status-left-length 10 #!important
+set -g status-right-length 40 #!important
+set -g status-left-style default #!important
+set -g status-right-style default #!important

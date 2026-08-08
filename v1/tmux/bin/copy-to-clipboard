@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# WSL: clip.exe expects UTF-16LE for reliable Unicode clipboard transfer.
+if [ -x /mnt/c/WINDOWS/System32/clip.exe ]; then
+    iconv -f UTF-8 -t UTF-16LE |
+        /mnt/c/WINDOWS/System32/clip.exe
+    exit $?
+fi
+
+# Wayland Linux
+if command -v wl-copy >/dev/null 2>&1; then
+    wl-copy
+    exit $?
+fi
+
+# X11 Linux
+if command -v xclip >/dev/null 2>&1; then
+    xclip -selection clipboard
+    exit $?
+fi
+
+if command -v xsel >/dev/null 2>&1; then
+    xsel --clipboard --input
+    exit $?
+fi
+
+echo "No supported clipboard command found" >&2
+exit 1
