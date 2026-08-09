@@ -488,17 +488,20 @@ install_neovim
 # ------------------------------------------------
 
 install_starship() {
+    local installed_path=""
     local installed_version=""
 
-    if [ -x /usr/local/bin/starship ]; then
+    if command -v starship >/dev/null 2>&1; then
+        installed_path="$(command -v starship)"
+
         installed_version="$(
-            /usr/local/bin/starship --version 2>/dev/null |
+            "$installed_path" --version 2>/dev/null |
                 sed -n '1s/^starship //p'
         )"
     fi
 
     if [ "$installed_version" = "$STARSHIP_VERSION" ]; then
-        ok "Starship ${STARSHIP_VERSION}: /usr/local/bin/starship"
+        ok "Starship ${STARSHIP_VERSION}: ${installed_path}"
         return
     fi
 

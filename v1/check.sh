@@ -293,19 +293,21 @@ else
     fail "/usr/local/bin/nvim missing"
 fi
 
-if [ -x /usr/local/bin/starship ]; then
+if command_exists starship; then
+    STARSHIP_PATH="$(command -v starship)"
+
     STARSHIP_VERSION="$(
-        /usr/local/bin/starship --version 2>/dev/null |
+        "$STARSHIP_PATH" --version 2>/dev/null |
         sed -n '1s/^starship //p'
     )"
 
     if [ "$STARSHIP_VERSION" = "$EXPECTED_STARSHIP_VERSION" ]; then
-        ok "Starship ${STARSHIP_VERSION}"
+        ok "Starship ${STARSHIP_VERSION}: ${STARSHIP_PATH}"
     else
         fail "Starship ${STARSHIP_VERSION:-unknown}; expected ${EXPECTED_STARSHIP_VERSION}"
     fi
 else
-    fail "/usr/local/bin/starship missing"
+    fail "Starship command missing"
 fi
 
 if command_exists tmux; then
@@ -413,7 +415,7 @@ if [ -f "${HOME}/.config/dotfiles/local.sh" ]; then
         fail "local.sh exists but is not readable"
     fi
 else
-    warn "local.sh not configured on this machine"
+    ok "local.sh not configured (optional)"
 fi
 
 if [ "$DISTRO" = "kali" ]; then
