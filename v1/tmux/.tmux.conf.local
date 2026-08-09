@@ -578,3 +578,6 @@ set -g status-right-style default #!important
 unbind C-b
 set -g prefix C-a
 bind C-a send-prefix
+
+# Use tmux's native terminfo when available.
+set -g default-terminal "tmux-256color"
