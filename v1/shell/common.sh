@@ -40,3 +40,9 @@ fi
 if command -v lazygit >/dev/null 2>&1; then
     alias lg='lazygit'
 fi
+
+# Optional machine-local configuration.
+# Keep host-specific paths, credentials, and other private settings outside Git.
+if [ -r "$HOME/.config/dotfiles/local.sh" ]; then
+    . "$HOME/.config/dotfiles/local.sh"
+fi
