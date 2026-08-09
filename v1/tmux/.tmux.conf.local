@@ -564,7 +564,7 @@ bind-key -T copy-mode-vi TripleClick1Pane select-pane \; send-keys -X select-lin
 # nordtheme/tmux owns the visual theme.
 set -g @nord_tmux_show_status_content "1"
 set -g @nord_tmux_no_patched_font "0"
-set -g @plugin "nordtheme/tmux"
+run-shell 'bash "$HOME/dotfiles/v1/tmux/vendor/nord-tmux/nord.tmux"'
 
 # Oh My Tmux! normally expands these values for its own status line.
 # Restore stock values after plugins so Nord keeps its official layout.
@@ -572,3 +572,9 @@ set -g status-left-length 10 #!important
 set -g status-right-length 40 #!important
 set -g status-left-style default #!important
 set -g status-right-style default #!important
+
+# -- Primary prefix ----------------------------------------------------------
+# Keep C-a as the primary prefix on every fresh tmux server.
+unbind C-b
+set -g prefix C-a
+bind C-a send-prefix
