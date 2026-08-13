@@ -137,6 +137,18 @@ fi
 [ -f "${SCRIPT_DIR}/nvim/init.lua" ] ||
     die "Cannot find Neovim v1 configuration."
 
+[ -f "${SCRIPT_DIR}/nvim/lazyvim.json" ] ||
+    die "Cannot find LazyVim extras configuration."
+
+[ -f "${SCRIPT_DIR}/nvim/lazy-lock.json" ] ||
+    die "Cannot find lazy.nvim lockfile."
+
+[ -f "${SCRIPT_DIR}/nvim/lua/config/lazy.lua" ] ||
+    die "Cannot find LazyVim bootstrap configuration."
+
+[ -f "${SCRIPT_DIR}/nvim/lua/plugins/colorscheme.lua" ] ||
+    die "Cannot find Neovim colorscheme configuration."
+
 [ -f "${SCRIPT_DIR}/tmux/bin/copy-to-clipboard" ] ||
     die "Cannot find clipboard wrapper."
 
@@ -628,19 +640,50 @@ fi
 # Neovim plugin bootstrap
 # ------------------------------------------------
 
+MASON_CLANGD="${HOME}/.local/share/nvim-v1/mason/bin/clangd"
+
 if [ "$MODE" = "dry-run" ]; then
-    log "Would initialize Neovim v1:"
-    printf '         NVIM_APPNAME=nvim-v1 /usr/local/bin/nvim --headless +qa\n'
+    log "Would restore Neovim v1 plugins from lazy-lock.json:"
+    printf "         NVIM_APPNAME=nvim-v1 /usr/local/bin/nvim --headless '+Lazy! restore' '+qa'\n"
+
+    if [ -x "$MASON_CLANGD" ]; then
+        ok "Mason clangd: ${MASON_CLANGD}"
+    else
+        log "Would install Mason package: clangd"
+        printf "         NVIM_APPNAME=nvim-v1 /usr/local/bin/nvim --headless '+lua require(\\\"lazy\\\").load({plugins={\\\"mason.nvim\\\"}})' '+MasonInstall clangd' '+qall'\n"
+    fi
 else
-    log "Initializing Neovim v1..."
+    log "Restoring Neovim v1 plugins from lazy-lock.json..."
 
     env \
         NVIM_APPNAME=nvim-v1 \
         /usr/local/bin/nvim \
         --headless \
+        '+Lazy! restore' \
         '+qa'
 
-    ok "Neovim v1 headless initialization completed."
+    ok "Neovim v1 plugin restore completed."
+
+    if [ -x "$MASON_CLANGD" ]; then
+        ok "Mason clangd: ${MASON_CLANGD}"
+    else
+        log "Installing Mason package: clangd..."
+
+        env \
+            NVIM_APPNAME=nvim-v1 \
+            /usr/local/bin/nvim \
+            --headless \
+            '+lua require("lazy").load({plugins={"mason.nvim"}})' \
+            '+MasonInstall clangd' \
+            '+qall'
+
+        [ -x "$MASON_CLANGD" ] ||
+            die "Mason clangd installation did not produce ${MASON_CLANGD}"
+
+        ok "Mason clangd installed: ${MASON_CLANGD}"
+    fi
+
+    ok "Neovim v1 LazyVim bootstrap completed."
 fi
 
 # ------------------------------------------------

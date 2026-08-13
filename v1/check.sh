@@ -529,54 +529,112 @@ fi
 
 section "Neovim v1"
 
-if [ -f "${SCRIPT_DIR}/nvim/init.lua" ]; then
-    ok "init.lua exists"
+NVIM_CONFIG_FILES=(
+    init.lua
+    lazyvim.json
+    lazy-lock.json
+    stylua.toml
+    lua/config/lazy.lua
+    lua/config/options.lua
+    lua/config/keymaps.lua
+    lua/config/autocmds.lua
+    lua/plugins/colorscheme.lua
+)
+
+for config_file in "${NVIM_CONFIG_FILES[@]}"; do
+    if [ -f "${SCRIPT_DIR}/nvim/${config_file}" ]; then
+        ok "Neovim config: ${config_file}"
+    else
+        fail "Neovim config missing: ${config_file}"
+    fi
+done
+
+if grep -Eq \
+    'require[[:space:]]*\([[:space:]]*"config\.lazy"[[:space:]]*\)' \
+    "${SCRIPT_DIR}/nvim/init.lua"; then
+    ok "init.lua loads config.lazy"
 else
-    fail "init.lua missing"
+    fail "init.lua does not load config.lazy"
 fi
 
-if [ -f "${SCRIPT_DIR}/nvim/nvim-pack-lock.json" ]; then
-    ok "nvim-pack-lock.json exists"
+if grep -Fq 'LazyVim/LazyVim' "${SCRIPT_DIR}/nvim/lua/config/lazy.lua" &&
+   grep -Eq 'import[[:space:]]*=[[:space:]]*"lazyvim\.plugins"' \
+       "${SCRIPT_DIR}/nvim/lua/config/lazy.lua" &&
+   grep -Eq 'import[[:space:]]*=[[:space:]]*"plugins"' \
+       "${SCRIPT_DIR}/nvim/lua/config/lazy.lua"; then
+    ok "LazyVim starter plugin imports found"
 else
-    fail "nvim-pack-lock.json missing"
-fi
-
-if [ -s "${SCRIPT_DIR}/nvim/KICKSTART_UPSTREAM_COMMIT" ]; then
-    ok "Kickstart upstream commit is recorded"
-else
-    fail "KICKSTART_UPSTREAM_COMMIT missing/empty"
+    fail "LazyVim starter plugin imports incomplete"
 fi
 
 if grep -Fq \
-    "vim.cmd.colorscheme 'nord'" \
-    "${SCRIPT_DIR}/nvim/init.lua"; then
-    ok "Neovim colorscheme: Nord"
+    'lazyvim.plugins.extras.lang.clangd' \
+    "${SCRIPT_DIR}/nvim/lazyvim.json"; then
+    ok "LazyVim Extra: lang.clangd"
 else
-    fail "Neovim Nord colorscheme declaration missing"
+    fail "LazyVim lang.clangd Extra missing"
 fi
 
-if grep -Fq \
-    "nordtheme/vim" \
-    "${SCRIPT_DIR}/nvim/init.lua"; then
-    ok "Nord Neovim plugin declaration found"
+if grep -Eq \
+    'lazyvim\.plugins\.extras\.lang\.python|basedpyright|pyright|venv-selector|lazyvim_python_lsp' \
+    "${SCRIPT_DIR}/nvim/lazyvim.json" \
+    "${SCRIPT_DIR}/nvim/init.lua" \
+    "${SCRIPT_DIR}/nvim/lua/config/"*.lua \
+    "${SCRIPT_DIR}/nvim/lua/plugins/"*.lua; then
+    fail "Python-specific LazyVim configuration found"
 else
-    fail "Nord Neovim plugin declaration missing"
+    ok "Python-specific LazyVim configuration absent"
 fi
 
-if grep -Fq \
-    'vim.pack.add' \
-    "${SCRIPT_DIR}/nvim/init.lua"; then
-    ok "vim.pack configuration found"
+if grep -Fq 'nordtheme/vim' \
+       "${SCRIPT_DIR}/nvim/lua/plugins/colorscheme.lua" &&
+   grep -Eq 'colorscheme[[:space:]]*=[[:space:]]*"nord"' \
+       "${SCRIPT_DIR}/nvim/lua/plugins/colorscheme.lua"; then
+    ok "Neovim Nord plugin and colorscheme configured"
 else
-    fail "vim.pack configuration missing"
+    fail "Neovim Nord configuration incomplete"
 fi
 
-if grep -Fq \
-    'nvim-treesitter' \
-    "${SCRIPT_DIR}/nvim/init.lua"; then
-    ok "nvim-treesitter configuration found"
+if [ ! -e "${SCRIPT_DIR}/nvim/nvim-pack-lock.json" ] &&
+   [ ! -e "${SCRIPT_DIR}/nvim/KICKSTART_UPSTREAM_COMMIT" ] &&
+   [ ! -d "${SCRIPT_DIR}/nvim/lua/kickstart" ]; then
+    ok "Old Kickstart metadata and configuration absent"
 else
-    fail "nvim-treesitter configuration missing"
+    fail "Old Kickstart metadata or configuration remains"
+fi
+
+if grep -RIEq \
+    --include='*.lua' \
+    --include='*.json' \
+    'vim\.pack|packadd' \
+    "${SCRIPT_DIR}/nvim"; then
+    fail "Old vim.pack configuration found"
+else
+    ok "Old vim.pack configuration absent"
+fi
+
+if [ -d "${SCRIPT_DIR}/nvim/.git" ]; then
+    fail "Nested .git found in Neovim configuration"
+else
+    ok "Nested .git absent from Neovim configuration"
+fi
+
+if env NVIM_APPNAME=nvim-v1 /usr/local/bin/nvim --headless \
+    '+lua assert(vim.g.colors_name == "nord", "expected nord")' \
+    '+lua assert(package.loaded["lazy"], "lazy.nvim not loaded")' \
+    '+lua assert(package.loaded["lazyvim.config"], "LazyVim not loaded")' \
+    '+qa' >/dev/null 2>&1; then
+    ok "LazyVim runtime and Nord colorscheme"
+else
+    fail "LazyVim runtime or Nord colorscheme validation failed"
+fi
+
+MASON_CLANGD="${HOME}/.local/share/nvim-v1/mason/bin/clangd"
+
+if [ -x "$MASON_CLANGD" ]; then
+    ok "Mason clangd: ${MASON_CLANGD}"
+else
+    fail "Mason clangd missing or not executable: ${MASON_CLANGD}"
 fi
 
 if command_exists tree-sitter; then
